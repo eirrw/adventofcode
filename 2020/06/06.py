@@ -2,11 +2,14 @@ with open('input') as inputFile:
     data = inputFile.read()
     groups = data.split('\n\n')
 
-sumYes = 0
+sumAnyYes, sumAllYes = 0, 0
 for group in groups:
-    users = [set(i) for i in group.split('\n')]
-    maxYes = len(users[0].union(*users))
+    users = [set(i) for i in group.strip().split('\n')]
+    anyYes = len(users[0].union(*users))
+    allYes = len(users[0].intersection(*users))
 
-    sumYes += maxYes
+    sumAnyYes += anyYes
+    sumAllYes += allYes
 
-print("Part 1: {}".format(sumYes))
+print("Part 1: {}".format(sumAnyYes))
+print("Part 2: {}".format(sumAllYes))
