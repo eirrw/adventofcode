@@ -19,14 +19,14 @@ for rule in data:
         bagsRoster[base].append(Bag(name, int(count)))
 
 
-def can_store_bag(needle: str, bag: str, checked: Set) -> (bool, List):
-    stored = bagsRoster[bag]
-    checked.add(bag)
+def can_store_bag(needle: str, parent_bag: str, checked: Set) -> (bool, List):
+    stored = bagsRoster[parent_bag]
+    checked.add(parent_bag)
     if needle in [i.name for i in stored]:
         return True, checked
     else:
-        for sub_bag in [i for i in stored if i not in checked]:
-            can_store, new_checked = can_store_bag(needle, sub_bag.name, checked)
+        for child_bag in [i for i in stored if i not in checked]:
+            can_store, new_checked = can_store_bag(needle, child_bag.name, checked)
             checked = checked.union(new_checked)
             if can_store:
                 return True, checked
@@ -34,11 +34,25 @@ def can_store_bag(needle: str, bag: str, checked: Set) -> (bool, List):
     return False, checked
 
 
+def count_total_bags(parent_bag: str) -> int:
+    total_bags = 0
+    child_bags = bagsRoster.get(parent_bag)
+    for child_bag in child_bags:
+        total_bags += child_bag.count + (child_bag.count * count_total_bags(child_bag.name))
+
+    return total_bags
+
+
 count = 0
 has_checked = set()
-for parent_bag in bagsRoster.keys():
-    bag_can_store, has_checked = can_store_bag('shiny gold', parent_bag, has_checked)
+for bag in bagsRoster.keys():
+    bag_can_store, has_checked = can_store_bag('shiny gold', bag, has_checked)
     if bag_can_store:
         count += 1
 
-print(count)
+total = count_total_bags('shiny gold')
+
+
+print("Part 1: {}".format(count))
+print("Part 2: {}".format(total))
+
