@@ -1,24 +1,34 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"io"
 	"log"
+	"net/http"
+	"net/http/cookiejar"
 	"os"
 	"strconv"
-	"strings"
+	"time"
 )
 
+const INPUT_URL = "https://adventofcode.com/2021/day/%d/input"
+const INPUT_FILEPATH = "input/%d.input"
+
 func main() {
-	if len(os.Args) == 2 {
-		day, err := strconv.Atoi(os.Args[1])
+	if len(os.Args) == 3 {
+		day, err := strconv.Atoi(os.Args[2])
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		switch day {
-		case 1:
-			err = day1()
+		switch os.Args[1] {
+		case "run":
+			err = run(day)
+		case "get":
+			err = get(day)
 		}
+
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -27,53 +37,69 @@ func main() {
 	}
 }
 
-func getInput(day int) ([]byte, error) {
-	input, err := os.ReadFile(fmt.Sprintf("input/%d.input", day))
-	if err != nil {
-		return nil, err
+func run(day int) error {
+	var err error
+	switch day {
+	case 1:
+		err = day1()
 	}
 
-	return input, nil
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func getInputAsStrings(day int) ([]string, error) {
-	input, err := getInput(day)
+func get(day int) error {
+	var client http.Client
+	jar, err := cookiejar.New(nil)
 	if err != nil {
-		return nil, err
+		return err
+	}
+	client = http.Client{
+		Jar: jar,
 	}
 
-	inputStrings := strings.Split(string(input), "\n")
-
-	return inputStrings, nil
-}
-
-func getInputAsInts(day int) ([]int, error) {
-	inputStrings, err := getInputAsStrings(day)
+	expires, err := time.Parse(time.RFC1123, "Sat, 29 Nov 2031 17:31:10 GMT")
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	inputInts, err := arrayAtoi(inputStrings)
-	if err != nil {
-		return nil, err
+	cookie := &http.Cookie{
+		Name: "session",
+		Value: os.Getenv("AOC_SESSION"),
+		Expires: expires,
 	}
 
-	return inputInts, nil
-}
+	url := fmt.Sprintf(INPUT_URL, day)
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return err
+	}
 
-func arrayAtoi(strings []string) ([]int, error) {
-	ints := make([]int, len(strings))
-	for i, s := range strings {
-		if len(s) == 0 {
-			continue
-		}
-		c, err := strconv.Atoi(s)
+	req.AddCookie(cookie)
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == 200 {
+		out, err := os.Create(fmt.Sprintf(INPUT_FILEPATH, day))
 		if err != nil {
-			return nil, err
+			return err
 		}
+		defer out.Close()
 
-		ints[i] = c
+		_, err = io.Copy(out, resp.Body)
+		if err != nil {
+			return err
+		}
+	} else {
+		return errors.New(http.StatusText(resp.StatusCode))
 	}
 
-	return ints, nil
+	return nil
 }
