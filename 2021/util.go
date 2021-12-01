@@ -10,7 +10,7 @@ import (
 // getInput retrieves the input data for the given day from the downloaded input files.
 // The data is returned as a byte slice and any read error encountered.
 func getInput(day int) ([]byte, error) {
-	input, err := os.ReadFile(fmt.Sprintf("input/%d.input", day))
+	input, err := os.ReadFile(fmt.Sprintf(INPUT_FILEPATH, day))
 	if err != nil {
 		return nil, err
 	}
