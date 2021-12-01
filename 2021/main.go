@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 )
 
 func main() {
@@ -33,6 +34,31 @@ func getInput(day int) ([]byte, error) {
 	}
 
 	return input, nil
+}
+
+func getInputAsStrings(day int) ([]string, error) {
+	input, err := getInput(day)
+	if err != nil {
+		return nil, err
+	}
+
+	inputStrings := strings.Split(string(input), "\n")
+
+	return inputStrings, nil
+}
+
+func getInputAsInts(day int) ([]int, error) {
+	inputStrings, err := getInputAsStrings(day)
+	if err != nil {
+		return nil, err
+	}
+
+	inputInts, err := arrayAtoi(inputStrings)
+	if err != nil {
+		return nil, err
+	}
+
+	return inputInts, nil
 }
 
 func arrayAtoi(strings []string) ([]int, error) {

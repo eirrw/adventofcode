@@ -2,23 +2,17 @@ package main
 
 import (
 	"fmt"
-	"strings"
 )
 
 func day1() error {
-	input, err := getInput(1)
-	if err != nil {
-		return err
-	}
-
-	inputLines, err := arrayAtoi(strings.Split(string(input), "\n"))
+	input, err := getInputAsInts(1)
 	if err != nil {
 		return err
 	}
 
 	var prev int
 	totDec := 0
-	for i, line := range inputLines {
+	for i, line := range input {
 		if i != 0 {
 			if line > prev{
 				totDec++
@@ -31,8 +25,8 @@ func day1() error {
 	fmt.Printf("pt1: %d\n", totDec)
 
 	totDec = 0
-	for i := 0; i < len(inputLines) - 2; i++ {
-		cur := inputLines[i] + inputLines[i + 1] + inputLines[i + 2]
+	for i := 0; i < len(input) - 2; i++ {
+		cur := input[i] + input[i + 1] + input[i + 2]
 		if i != 0 {
 			if cur > prev {
 				totDec++
