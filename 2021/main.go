@@ -1,6 +1,9 @@
 package main
 
 import (
+	"aoc2021/day1"
+	"aoc2021/day2"
+	"aoc2021/util"
 	"errors"
 	"fmt"
 	"io"
@@ -12,8 +15,6 @@ import (
 	"time"
 )
 
-const INPUT_URL = "https://adventofcode.com/2021/day/%d/input"
-const INPUT_FILEPATH = "input/%d.input"
 
 func main() {
 	if len(os.Args) == 3 {
@@ -41,7 +42,9 @@ func run(day int) error {
 	var err error
 	switch day {
 	case 1:
-		err = day1()
+		err = day1.Run()
+	case 2:
+		err = day2.Run()
 	}
 
 	if err != nil {
@@ -72,7 +75,7 @@ func get(day int) error {
 		Expires: expires,
 	}
 
-	url := fmt.Sprintf(INPUT_URL, day)
+	url := fmt.Sprintf(util.InputUrl, day)
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return err
@@ -87,7 +90,7 @@ func get(day int) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode == 200 {
-		out, err := os.Create(fmt.Sprintf(INPUT_FILEPATH, day))
+		out, err := os.Create(fmt.Sprintf(util.InputFilepath, day))
 		if err != nil {
 			return err
 		}
@@ -98,6 +101,16 @@ func get(day int) error {
 			return err
 		}
 	} else {
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return err
+		}
+
+		_, err = os.Stderr.Write(body)
+		if err != nil {
+			return err
+		}
+
 		return errors.New(http.StatusText(resp.StatusCode))
 	}
 

@@ -1,11 +1,12 @@
-package main
+package day1
 
 import (
+	"aoc2021/util"
 	"fmt"
 )
 
-func day1() error {
-	input, err := getInputAsInts(1)
+func Run() error {
+	input, err := util.GetInputAsInts(1)
 	if err != nil {
 		return err
 	}
