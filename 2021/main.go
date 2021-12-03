@@ -3,6 +3,7 @@ package main
 import (
 	"aoc2021/day1"
 	"aoc2021/day2"
+	"aoc2021/day3"
 	"aoc2021/util"
 	"errors"
 	"fmt"
@@ -45,6 +46,8 @@ func run(day int) error {
 		err = day1.Run()
 	case 2:
 		err = day2.Run()
+	case 3:
+		err = day3.Run()
 	}
 
 	if err != nil {

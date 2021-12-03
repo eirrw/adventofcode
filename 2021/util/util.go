@@ -1,6 +1,8 @@
 package util
 
 import (
+	"bytes"
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
@@ -52,7 +54,7 @@ func GetInputAsInts(day int) ([]int, error) {
 	return inputInts, nil
 }
 
-func GetInputMultiDimensional(day int) ([][]string, error){
+func GetInputMultiDimensionalString(day int) ([][]string, error){
 	input, err := GetInputAsStrings(day)
 	if err != nil {
 		return nil, err
@@ -63,6 +65,18 @@ func GetInputMultiDimensional(day int) ([][]string, error){
 		sub := strings.Split(s, " ")
 		t = append(t, sub)
 	}
+
+	return t, nil
+}
+
+func GetInputMultiDimensionalByte(day int, split byte) ([][]byte, error){
+	input, err := GetInput(day)
+	if err != nil {
+		return nil, err
+	}
+
+	s := bytes.TrimSpace(input)
+	t := bytes.Split(s, []byte{split})
 
 	return t, nil
 }
@@ -81,4 +95,34 @@ func SliceAtoi(strings []string) ([]int, error) {
 	}
 
 	return ints, nil
+}
+
+func Reflect2DSlice(in [][]byte, reverse bool) ([][]byte, error) {
+	x := len(in)
+	if x == 0 {
+		return nil, errors.New("invalid input slice")
+	}
+
+	y := len(in[0])
+	out := make([][]byte, y)
+
+	for i := 0; i < y; i++ {
+		t := make([]byte, x)
+		for j := 0; j < x; j++ {
+			t[j] = in[j][i]
+		}
+		out[i] = t
+	}
+
+	return out, nil
+}
+
+func Duplicate(data [][]byte) [][]byte {
+	dupe := make([][]byte, len(data))
+	for i := range data {
+		dupe[i] = make([]byte, len(data[i]))
+		copy(dupe[i], data[i])
+	}
+
+	return dupe
 }
