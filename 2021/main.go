@@ -4,6 +4,7 @@ import (
 	"aoc2021/day1"
 	"aoc2021/day2"
 	"aoc2021/day3"
+	"aoc2021/day4"
 	"aoc2021/util"
 	"errors"
 	"fmt"
@@ -48,6 +49,9 @@ func run(day int) error {
 		err = day2.Run()
 	case 3:
 		err = day3.Run()
+	case 4:
+		err = day4.Run()
+
 	}
 
 	if err != nil {
