@@ -28,7 +28,7 @@ func Run() error {
 }
 
 func part1() (int, error) {
-	input, err := util.GetInputMultiDimensionalByte(3, '\n')
+	input, err := util.GetInputMultiDimensionalByte(3, '\n', false)
 	if err != nil {
 		return 0, err
 	}
@@ -65,7 +65,7 @@ func part1() (int, error) {
 }
 
 func part2() (int, error) {
-	input, err := util.GetInputMultiDimensionalByte(3, '\n')
+	input, err := util.GetInputMultiDimensionalByte(3, '\n', false)
 	if err != nil {
 		return 0, err
 	}

@@ -27,7 +27,7 @@ func Run() error {
 }
 
 func part1() (int, error) {
-	input, err := util.GetInputMultiDimensionalString(2)
+	input, err := util.GetInputMultiDimensionalString(2, false)
 	if err != nil {
 		return 0, err
 	}
@@ -54,7 +54,7 @@ func part1() (int, error) {
 }
 
 func part2() (int, error) {
-	input, err := util.GetInputMultiDimensionalString(2)
+	input, err := util.GetInputMultiDimensionalString(2, false)
 	if err != nil {
 		return 0, err
 	}

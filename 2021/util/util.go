@@ -12,12 +12,19 @@ import (
 const (
 	InputUrl      = "https://adventofcode.com/2021/day/%d/input"
 	InputFilepath = "input/%d.input"
+	InputTestFilepath = "input/%d.test.input"
 )
 
 // GetInput retrieves the input data for the given day from the downloaded input files.
 // The data is returned as a byte slice and any read error encountered.
-func GetInput(day int) ([]byte, error) {
-	input, err := os.ReadFile(fmt.Sprintf(InputFilepath, day))
+func GetInput(day int, test bool) ([]byte, error) {
+	var input []byte
+	var err error
+	if test {
+		input, err = os.ReadFile(fmt.Sprintf(InputTestFilepath, day))
+	} else {
+		input, err = os.ReadFile(fmt.Sprintf(InputFilepath, day))
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -27,8 +34,8 @@ func GetInput(day int) ([]byte, error) {
 
 // GetInputAsStrings retrieves the input data for the given day from the downloaded input files.
 // The data is returned as a slice of strings divided by line and any read error encountered.
-func GetInputAsStrings(day int) ([]string, error) {
-	input, err := GetInput(day)
+func GetInputAsStrings(day int, test bool) ([]string, error) {
+	input, err := GetInput(day, test)
 	if err != nil {
 		return nil, err
 	}
@@ -40,8 +47,8 @@ func GetInputAsStrings(day int) ([]string, error) {
 
 // GetInputAsInts retrieves the input data for the given day from the downloaded input files.
 // The data is returned as a slice of integers (given one number per line) and any read error encountered.
-func GetInputAsInts(day int) ([]int, error) {
-	inputStrings, err := GetInputAsStrings(day)
+func GetInputAsInts(day int, test bool) ([]int, error) {
+	inputStrings, err := GetInputAsStrings(day, test)
 	if err != nil {
 		return nil, err
 	}
@@ -54,8 +61,8 @@ func GetInputAsInts(day int) ([]int, error) {
 	return inputInts, nil
 }
 
-func GetInputMultiDimensionalString(day int) ([][]string, error){
-	input, err := GetInputAsStrings(day)
+func GetInputMultiDimensionalString(day int, test bool) ([][]string, error){
+	input, err := GetInputAsStrings(day, test)
 	if err != nil {
 		return nil, err
 	}
@@ -69,8 +76,8 @@ func GetInputMultiDimensionalString(day int) ([][]string, error){
 	return t, nil
 }
 
-func GetInputMultiDimensionalByte(day int, split byte) ([][]byte, error){
-	input, err := GetInput(day)
+func GetInputMultiDimensionalByte(day int, split byte, test bool) ([][]byte, error){
+	input, err := GetInput(day, test)
 	if err != nil {
 		return nil, err
 	}
@@ -125,4 +132,20 @@ func Duplicate(data [][]byte) [][]byte {
 	}
 
 	return dupe
+}
+
+func Min(x, y int) int {
+	if x < y {
+		return x
+	}
+
+	return y
+}
+
+func Max(x, y int) int {
+	if Min(x, y) == x {
+		return y
+	}
+
+	return x
 }

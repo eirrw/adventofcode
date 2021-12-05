@@ -6,7 +6,7 @@ import (
 )
 
 func Run() error {
-	input, err := util.GetInputAsInts(1)
+	input, err := util.GetInputAsInts(1, false)
 	if err != nil {
 		return err
 	}
