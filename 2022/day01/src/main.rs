@@ -5,11 +5,10 @@ fn main() {
         .expect("Should have been able to read the file");
 
     let elves = contents.split("\n\n");
-    let mut high = 0;
+    let mut cal_sums: Vec<i32> = Vec::new();
 
     for elf in elves {
         let items = elf.split("\n").collect::<Vec<&str>>();
-        println!("{:?}", items);
 
         let mut cals = 0;
         for item in items {
@@ -18,11 +17,12 @@ fn main() {
             }
         }
 
-        if cals > high {
-            high = cals
-        }
+        cal_sums.push(cals);
     }
 
+    cal_sums.sort_unstable();
+    cal_sums.reverse();
 
-    println!("{high}");
+    let sum = cal_sums[0] + cal_sums[1] + cal_sums[2];
+    println!("{sum}");
 }
