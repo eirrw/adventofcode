@@ -1,10 +1,5 @@
-use std::fs;
-
-fn main() {
-    let contents = fs::read_to_string("input")
-        .expect("Should have been able to read the file");
-
-    let elves = contents.split("\n\n");
+pub fn main(input: String) {
+    let elves = input.split("\n\n");
     let mut cal_sums: Vec<i32> = Vec::new();
 
     for elf in elves {
