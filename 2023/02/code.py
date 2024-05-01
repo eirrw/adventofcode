@@ -34,6 +34,7 @@ def parse_game(game: str) -> Game:
 
 with open('input') as fp:
     sum_ids = 0
+    sum_powers = 0
     for game in fp:
         maxes = parse_game(game)
         valid = False
@@ -46,8 +47,8 @@ with open('input') as fp:
             valid = True
             sum_ids += int(maxes.id)
 
-        print(game.strip())
-        print(maxes)
-        print(valid, '\n')
+        power = maxes.max_red * maxes.max_green * maxes.max_blue
+        sum_powers += power
 
     print(sum_ids)
+    print(sum_powers)
