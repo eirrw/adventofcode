@@ -1,4 +1,6 @@
 from typing import NamedTuple, List
+from bisect import bisect_left
+import concurrent.futures
 
 
 class Map(NamedTuple):
@@ -8,10 +10,38 @@ class Map(NamedTuple):
 
 
 def get_closest(maps: List[Map], idx: int):
-    try:
-        return max([i for i in maps if idx >= i.source], key=lambda i: i.source)
-    except ValueError:
+    pos = bisect_left(maps, idx, key=lambda m: m.source)
+    if pos == 0:
+        if maps[0].source == idx:
+            return maps[0]
         return None
+    elif pos == len(maps):
+        return maps[-1]
+
+    if maps[pos].source == idx:
+        return maps[pos]
+
+    return maps[pos - 1]
+
+
+def proc_seeds(seed_start: int, seed_range: int, maps: List[List[Map]]):
+    print('Starting thread for seed {} with range {}'.format(seed_start, seed_range))
+    loc = None
+    for seed in range(seed_start, seed_start + seed_range):
+        cur_idx = seed
+        for maps in all_maps:
+            val = get_closest(maps, cur_idx)
+            if val is not None:
+                if cur_idx in range(val.source, val.source + val.range):
+                    offset = cur_idx - val.source
+                    cur_idx = val.dest + offset
+
+        if loc is None:
+            loc = cur_idx
+        else:
+            loc = min(loc, cur_idx)
+
+    return loc
 
 
 sts_map: List[Map] = []
@@ -23,11 +53,14 @@ tth_map: List[Map] = []
 htl_map: List[Map] = []
 
 
+#with open('example1') as fp:
 with open('input') as fp:
     current_map = None
     for line in fp:
         if line.find('seeds:') == 0:
             seeds = [int(i) for i in line.strip().split(' ')[1:]]
+            if len(seeds) % 2 != 0:
+                exit(128)
             continue
 
         if 'seed-to-soil' in line:
@@ -55,22 +88,23 @@ with open('input') as fp:
         if current_map is not None and line.strip() != '':
             data = Map(*[int(i) for i in line.strip().split(' ')])
             current_map.append(data)
-
-for maps in [sts_map, stf_map, ftw_map, wtl_map, ltt_map, tth_map, htl_map]:
+all_maps = [sts_map, stf_map, ftw_map, wtl_map, ltt_map, tth_map, htl_map]
+for maps in all_maps:
     maps.sort(key=lambda item: item.source)
 
-locations = []
-for seed in seeds:
-    cur_idx = seed
-    for maps in [sts_map, stf_map, ftw_map, wtl_map, ltt_map, tth_map, htl_map]:
-        # print('current: ', cur_idx)
-        val = get_closest(maps, cur_idx)
-        if val is not None:
-            if cur_idx in range(val.source, val.source + val.range):
-                offset = cur_idx - val.source
-                cur_idx = val.dest + offset
+locs = []
+with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executer:
+    future_to_seed = {executer.submit(proc_seeds, seeds[si], seeds[si+1], all_maps): si for si in range(0, len(seeds), 2)}
+    for future in concurrent.futures.as_completed(future_to_seed):
+        idx = future_to_seed[future]
+        try:
+            data = future.result()
+            locs.append(data)
+        except Exception as exc:
+            print('%r generated an exception: %s' % (seeds[idx], exc))
+        else:
+            print('%r has location %d' % (seeds[idx], data))
 
-    locations.append(cur_idx)
-    # print('final: ', cur_idx)
 
-print(min(locations))
+print(locs)
+print(min(locs))
