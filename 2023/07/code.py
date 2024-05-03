@@ -34,7 +34,7 @@ def comp_cards(first, second):
         elif card == 'Q':
             return 12
         elif card == 'J':
-            return 11
+            return 1
         elif card == 'T':
             return 10
         elif card.isdigit():
@@ -72,21 +72,43 @@ class Hand():
             count = uniques.setdefault(card, 0) + 1
             uniques[card] = count
 
+        count_J = 0
+        if 'J' in uniques.keys():
+            count_J = uniques.pop('J')
+
         if len(uniques) == 5:
+            # no J
             self.type = Type.HIGH
         elif len(uniques) == 4:
+            # 2 1 1 1
+            # 1 1 1 1 (J)
             self.type = Type.ONEP
         elif len(uniques) == 3:
-            if 2 in uniques.values():
+            # 3 1 1         thre
+            # 2 2 1         twop
+            # 2 1 1 (J)     thre
+            # 1 1 1 (J J)   thre
+            if count_J:
+                self.type = Type.THRE
+            elif 2 in uniques.values():
                 self.type = Type.TWOP
             else:
                 self.type = Type.THRE
         elif len(uniques) == 2:
-            if 3 in uniques.values():
+            # 4 1           four
+            # 3 2           full
+            # 2 2 (J)       full
+            # 3 1 (J)       four
+            # 2 1 (J J)     four
+            # 1 1 (J J J)   four
+            if (
+                (3 in uniques.values() and not count_J)
+                or (count_J and 1 not in uniques.values())
+            ):
                 self.type = Type.FULL
             else:
                 self.type = Type.FOUR
-        elif len(uniques) == 1:
+        else:
             self.type = Type.FIVE
 
         return self.type
