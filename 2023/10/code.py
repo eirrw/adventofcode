@@ -92,5 +92,77 @@ while queue:
                 node.prev = cur_node
 
 
-valid_nodes = [n for n in nodes if n.dist != inf]
-print(max(valid_nodes, key=lambda node: node.dist).dist)
+loop_nodes = [n for n in nodes if n.dist != inf]
+print(max(loop_nodes, key=lambda node: node.dist).dist)
+
+area = 0
+for y in range(len(graph)):
+    for x in range(len(graph[y])):
+        # for every point in the graph
+        node = graph[y][x]
+        if node in loop_nodes:
+            continue
+
+        vert_rays = [
+            [graph[i][x] for i in range(y)],  # up
+            [graph[i][x] for i in range(y+1, len(graph))],  # down
+        ]
+        horz_rays = [
+            graph[y][:x],  # left
+            graph[y][x+1:],  # right
+        ]
+
+        def proc_ray(ray, ign_pipe, inc_pipe):
+            global loop_nodes
+
+            intersections = 0
+            last_pipe = '.'
+            for node in ray:
+                if node.pipe != ign_pipe and node in loop_nodes:
+                    if node.pipe == inc_pipe:
+                        intersections += 1
+                    elif (
+                        (node.pipe == 'F' and last_pipe == 'J')
+                        or (node.pipe == 'J' and last_pipe == 'F')
+                        or (node.pipe == 'L' and last_pipe == '7')
+                        or (node.pipe == '7' and last_pipe == 'L')
+                    ):
+                        intersections += 1
+                        last_pipe = '.'
+                    elif (
+                        (node.pipe == 'F' and last_pipe in '7L')
+                        or (node.pipe == 'J' and last_pipe in '7L')
+                        or (node.pipe == '7' and last_pipe in 'FJ')
+                        or (node.pipe == 'L' and last_pipe in 'FJ')
+                    ):
+                        intersections += 2
+                        last_pipe = '.'
+                    else:
+                        last_pipe = node.pipe
+
+            if intersections == 0:
+                return -1
+            return intersections % 2
+
+        found = False
+        for ray in vert_rays:
+            res = proc_ray(ray, '|', '-')
+            if res == -1:
+                continue
+            else:
+                if res == 1:
+                    area += 1
+                found = True
+                break
+
+        if not found:
+            for ray in horz_rays:
+                res = proc_ray(ray, '-', '|')
+                if res == -1:
+                    continue
+                else:
+                    if res == 1:
+                        area += 1
+                    break
+
+print(area)
