@@ -1,4 +1,5 @@
 from enum import Enum, auto
+from functools import cache
 from typing import NamedTuple
 
 
@@ -59,6 +60,31 @@ def find_next_coord(direction: Direction, node: Node):
         return (node.x, node.y + 1)
 
 
+def proc_grid(start_dir: Direction, start_node: Node):
+    global grid
+    queue = [(start_dir, start_node)]
+    energized = []
+    visited = []
+    while queue:
+        visit = queue.pop(0)
+        direction, node = visit
+
+        if visit not in visited:
+            visited.append(visit)
+
+            if node not in energized:
+                energized.append(node)
+
+            next_dirs = get_next_dir(direction, node.func)
+            next_coords = [find_next_coord(next_dir, node) for next_dir in next_dirs]
+            for n, coord in enumerate(next_coords):
+                if coord[0] >= 0 and coord[0] < len(grid[0]) and coord[1] >= 0 and coord[1] < len(grid):
+                    #visited.append((next_dirs[n], node))
+                    queue.append((next_dirs[n], grid[coord[1]][coord[0]]))
+
+    return len(energized)
+
+
 grid = []
 with open('input') as fp:
     lines = fp.read().splitlines()
@@ -68,22 +94,15 @@ with open('input') as fp:
             row.append(Node(NodeFunc(c), x, y))
         grid.append(row)
 
-queue = [(Direction.LEFT, grid[0][0])]
-energized = []
+#for y in range(len(grid)):
 visited = []
-while queue:
-    #print(queue)
-    visit = queue.pop(0)
-    #print(visit)
-    direction, node = visit
-    if visit not in visited:
-        visited.append(visit)
-        if node not in energized:
-            energized.append(node)
-        next_dirs = get_next_dir(direction, node.func)
-        next_coords = [find_next_coord(next_dir, node) for next_dir in next_dirs]
-        for n, coord in enumerate(next_coords):
-            if coord[0] >= 0 and coord[0] < len(grid[0]) and coord[1] >= 0 and coord[1] < len(grid):
-                queue.append((next_dirs[n], grid[coord[1]][coord[0]]))
+energized = []
+total = proc_grid(Direction.LEFT, grid[0][0])
 
-print(len(energized))
+print(total)
+
+part2 = 0
+for row in range(len(grid)):
+    part2 = max(part2, proc_grid(Direction.LEFT, grid[row][0]), proc_grid(Direction.RIGHT, grid[row][-1]))
+
+print(part2)
